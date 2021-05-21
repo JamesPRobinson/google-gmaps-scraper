@@ -26,7 +26,7 @@ class GoogleMaps():
  
     def parse_carousel(self, container):
         listings = []
-        containers_xpath = "//div[contains(@class, 'has-image')]//div[contains(@class, 'body-content')]//div[contains(@class, 'action')]//div//div"
+        containers_xpath = "//div[contains(@jsaction, 'card')]"
         try:
             click_element_by_xpath(self.driver, container, 20)
             wait = WebDriverWait(self.driver, 20, ignored_exceptions=ignored_exceptions)
@@ -37,17 +37,18 @@ class GoogleMaps():
                 record['city'] = self.locality
                 record['query'] = self.query
                 try:
-                    record['name'] = listing.find_element(By.XPATH, "../../..//..").get_attribute('aria-label')
+                    record['name'] = listing.get_attribute('aria-label')
                 except:
                     pass
                 try:
-                    record['service'] = listing.find_element(By.XPATH, "..//..//..//div[contains(@class, 'text')]//div[contains(@class, 'info')]").text
+                    record['service'] = listing.find_element(By.XPATH, ".//div[contains(@class, 'content') and not(contains(@class, 'content '))]//div[text() !='']").text
                 except:
                     pass 
                 try:
-                    record['website'] = listing.get_attribute('data-tooltip').replace("\t", '').replace("\n", '').replace("\r", '').replace('"', '').strip()
+                    record['website'] = listing.find_element(By.XPATH, ".//div//div//div//div").get_attribute('data-tooltip').replace("\t", '').replace("\n", '').replace("\r", '').replace('"', '').strip()
                 except:                      
                     pass
+                print(record)
                 self.queue.put(record, timeout=10)
             self.driver.back()
             sleep(5)
@@ -57,7 +58,7 @@ class GoogleMaps():
 
 
     def parse_listings(self, links):
-        found_listing_xpath = "//h1[contains(@class, 'section-hero')]" # title loaded
+        found_listing_xpath = "//h1[contains(@class, 'hero-header-title')]" # title loaded
         for link in links:
             try:             
                 self.driver.get(link)
@@ -73,7 +74,7 @@ class GoogleMaps():
             except:
                 pass           
             try:
-                record['website'] = find_element_by_xpath(self.driver, 10,"//button[contains(@aria-label, 'web:')]").get_attribute("aria-label").replace('Web site: ', '').replace('\t', '').replace('\n', '').replace('\r', '').replace('"', '').strip()
+                record['website'] = find_element_by_xpath(self.driver, 10,"//button[contains(@aria-label, 'site:')]").get_attribute("aria-label").replace('Website:', '').replace('\t', '').replace('\n', '').replace('\r', '').replace('"', '').strip()
             except:
                 pass       
             try:
@@ -91,6 +92,7 @@ class GoogleMaps():
             except:
                 pass
             if record['website'] or record['phone_number']:
+                print(record)
                 self.queue.put(record, timeout=10)
 
 
@@ -112,7 +114,7 @@ class GoogleMaps():
                 pass
             # Handle screen-wide variation...
             try:
-                click_element_by_xpath(self.driver, "//button[contains(@aria-label, 'Acc')]", 15)
+                click_element_by_xpath(self.driver, "//button[contains(@aria-label, 'Agree')]", 15)
             except:
                 pass
             # check for captcha
@@ -141,7 +143,7 @@ class GoogleMaps():
                     if not carousel:
                         records.extend([e.get_attribute('href') for e in find_elements_by_xpath(self.driver, containers, 30) if e.get_attribute('href')])
                     for i in range(pages):
-                        next_page_xpath = "//button[contains(@id, 'pagination-button-next')]"
+                        next_page_xpath = "//button[contains(@aria-label, 'Next')]"
                         click_element_by_xpath(self.driver, next_page_xpath, 15)
                         sleep(5)
                 except:

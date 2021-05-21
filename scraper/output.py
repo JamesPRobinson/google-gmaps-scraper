@@ -36,13 +36,13 @@ class Output:
                 raw_writer = csv.DictWriter(raw_output_file, fieldnames=FIELDS)
                 if raw_output_file.tell() == 0:
                     raw_writer.writeheader()
-                url = clean_url(record['website'], self.country_code)
-                if url:
+                if record['website']:
                     record['email'] = get_email(record['website'])
                 raw_writer.writerow({'locality': record['city'], 'service': service_name, 'GMAPS-service' : record['GMAPS_Listing'], 
                                     'query': record['query'], 'company_name': record['name'], 'company_url': record['website'], 'address': record['address'], 
                                     'email': record['email'], 'phone': record['phone_number']})
         except Exception as e:
+            print(e)
             logging.info(e)
 
     def run(self, queue):

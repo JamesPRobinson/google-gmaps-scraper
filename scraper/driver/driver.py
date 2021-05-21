@@ -46,6 +46,7 @@ def get_driver(proxy=None):
     #options.add_experimental_option('excludeSwitches', ['enable-logging'])
     if proxy:
         options.add_argument("--proxy-server=" + proxy)
-    driver = webdriver.Firefox(executable_path=GeckoDriverManager().install(), firefox_profile=profile, options=options, service_log_path=os.devnull)
+    
+    driver = webdriver.Firefox(executable_path=r"C:\Users\klim1\Documents\geckodriver.exe", firefox_profile=profile, options=options, service_log_path=os.devnull)
 
     return driver
