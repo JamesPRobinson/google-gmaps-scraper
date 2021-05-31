@@ -1,6 +1,7 @@
 from selenium import webdriver
 from webdriver_manager.firefox import GeckoDriverManager
 import os
+from pathlib import Path
 
 def get_driver(proxy=None):
     profile = webdriver.FirefoxProfile()
@@ -46,7 +47,7 @@ def get_driver(proxy=None):
     #options.add_experimental_option('excludeSwitches', ['enable-logging'])
     if proxy:
         options.add_argument("--proxy-server=" + proxy)
-    
-    driver = webdriver.Firefox(executable_path=r"C:\Users\klim1\Documents\geckodriver.exe", firefox_profile=profile, options=options, service_log_path=os.devnull)
+    gecko_driver = Path(__file__).with_name('geckodriver.exe')
+    driver = webdriver.Firefox(executable_path=gecko_driver, firefox_profile=profile, options=options, service_log_path=os.devnull)
 
     return driver
